@@ -232,80 +232,86 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // =====================================================
-    // Parallax Effect on Hero Math Symbols
+    // Parallax Effect on Hero Math Symbols (Desktop Only)
     // =====================================================
     const symbols = document.querySelectorAll('.math-symbols .symbol');
     
-    window.addEventListener('mousemove', (e) => {
-        const mouseX = e.clientX / window.innerWidth;
-        const mouseY = e.clientY / window.innerHeight;
-        
-        symbols.forEach((symbol, index) => {
-            const speed = (index + 1) * 0.5;
-            const x = (mouseX - 0.5) * speed * 40;
-            const y = (mouseY - 0.5) * speed * 40;
-            const rotation = (mouseX - 0.5) * 20;
-            symbol.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+    if (!isMobile) {
+        window.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            symbols.forEach((symbol, index) => {
+                const speed = (index + 1) * 0.3;
+                const x = (mouseX - 0.5) * speed * 30;
+                const y = (mouseY - 0.5) * speed * 30;
+                const rotation = (mouseX - 0.5) * 15;
+                symbol.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+            });
         });
-    });
-    
-    // =====================================================
-    // Cute Cursor Trail Effect
-    // =====================================================
-    const cursorTrail = [];
-    const trailLength = 8;
-    
-    for (let i = 0; i < trailLength; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'cursor-dot';
-        dot.style.cssText = `
-            position: fixed;
-            width: ${12 - i}px;
-            height: ${12 - i}px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: ${0.6 - i * 0.07};
-            transition: transform 0.1s ease;
-            display: none;
-        `;
-        document.body.appendChild(dot);
-        cursorTrail.push({ el: dot, x: 0, y: 0 });
     }
     
-    let mouseX = 0, mouseY = 0;
-    let showTrail = false;
+    // =====================================================
+    // Cute Cursor Trail Effect (Desktop Only)
+    // =====================================================
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
     
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        if (!showTrail) {
-            showTrail = true;
-            cursorTrail.forEach(dot => dot.el.style.display = 'block');
+    if (!isMobile) {
+        const cursorTrail = [];
+        const trailLength = 6;
+        
+        for (let i = 0; i < trailLength; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'cursor-dot';
+            dot.style.cssText = `
+                position: fixed;
+                width: ${10 - i}px;
+                height: ${10 - i}px;
+                background: linear-gradient(135deg, var(--primary), var(--secondary));
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+                opacity: ${0.5 - i * 0.07};
+                transition: transform 0.1s ease;
+                display: none;
+            `;
+            document.body.appendChild(dot);
+            cursorTrail.push({ el: dot, x: 0, y: 0 });
         }
-    });
-    
-    function animateTrail() {
-        let x = mouseX;
-        let y = mouseY;
         
-        cursorTrail.forEach((dot, index) => {
-            const nextDot = cursorTrail[index + 1] || cursorTrail[0];
-            
-            dot.x = x;
-            dot.y = y;
-            dot.el.style.left = `${dot.x - 4}px`;
-            dot.el.style.top = `${dot.y - 4}px`;
-            
-            x += (nextDot.x - x) * 0.35;
-            y += (nextDot.y - y) * 0.35;
+        let mouseX = 0, mouseY = 0;
+        let showTrail = false;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (!showTrail) {
+                showTrail = true;
+                cursorTrail.forEach(dot => dot.el.style.display = 'block');
+            }
         });
         
-        requestAnimationFrame(animateTrail);
+        function animateTrail() {
+            let x = mouseX;
+            let y = mouseY;
+            
+            cursorTrail.forEach((dot, index) => {
+                const nextDot = cursorTrail[index + 1] || cursorTrail[0];
+                
+                dot.x = x;
+                dot.y = y;
+                dot.el.style.left = `${dot.x - 4}px`;
+                dot.el.style.top = `${dot.y - 4}px`;
+                
+                x += (nextDot.x - x) * 0.35;
+                y += (nextDot.y - y) * 0.35;
+            });
+            
+            requestAnimationFrame(animateTrail);
+        }
+        
+        animateTrail();
     }
-    
-    animateTrail();
     
     // =====================================================
     // Add Confetti on Button Click
