@@ -6,6 +6,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // =====================================================
+    // Cute Loading Animation
+    // =====================================================
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease';
+        document.body.style.opacity = '1';
+    }, 100);
+    
+    // =====================================================
     // Mobile Navigation Toggle
     // =====================================================
     const navToggle = document.getElementById('nav-toggle');
@@ -99,19 +108,22 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('animate-in');
+                // Add staggered delay for cute effect
+                setTimeout(() => {
+                    entry.target.classList.add('animate-in');
+                }, index * 100);
                 observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
     
     // Observe elements with animation
-    document.querySelectorAll('.stat-card, .skill-tag, .feature, .contact-card').forEach(el => {
+    document.querySelectorAll('.stat-card, .skill-tag, .feature, .contact-card').forEach((el, index) => {
         el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        el.style.transform = 'translateY(30px) scale(0.9)';
+        el.style.transition = `opacity 0.6s ease ${index * 0.05}s, transform 0.6s ease ${index * 0.05}s`;
         observer.observe(el);
     });
     
@@ -120,63 +132,102 @@ document.addEventListener('DOMContentLoaded', function() {
     style.textContent = `
         .animate-in {
             opacity: 1 !important;
-            transform: translateY(0) !important;
+            transform: translateY(0) scale(1) !important;
+        }
+        
+        .hero-title {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+        
+        .hero-subtitle {
+            animation: slideInLeft 0.8s ease 0.2s forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .hero-description {
+            animation: slideInLeft 0.8s ease 0.4s forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .hero-buttons {
+            animation: slideInUp 0.8s ease 0.6s forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .hero-card {
+            animation: pop 0.8s ease 0.3s forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
         }
     `;
     document.head.appendChild(style);
     
     // =====================================================
-    // Form Submission (if using Formspree or similar)
+    // Typing Effect for Hero Title
+    // =====================================================
+    const typingTexts = document.querySelectorAll('.typing-text');
+    typingTexts.forEach((text, index) => {
+        const originalText = text.textContent;
+        text.textContent = '';
+        text.style.borderRight = '2px solid var(--primary)';
+        
+        setTimeout(() => {
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < originalText.length) {
+                    text.textContent += originalText.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    text.style.borderRight = 'none';
+                }
+            }, 50);
+        }, 1000 + (index * 500));
+    });
+    
+    // =====================================================
+    // Form Submission with cute feedback
     // =====================================================
     const contactForm = document.querySelector('.contact-form');
     
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
-            // Form will be handled by Formspree or similar service
-            // Add loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending... ✨';
             submitBtn.disabled = true;
+            submitBtn.style.transform = 'scale(0.95)';
             
-            // Reset after a delay (for demo purposes)
             setTimeout(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }, 3000);
-        });
-    }
-    
-    // =====================================================
-    // Screenshot Gallery Scroll
-    // =====================================================
-    const screenshots = document.querySelector('.app-screenshots');
-    
-    if (screenshots) {
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-        
-        screenshots.addEventListener('mousedown', (e) => {
-            isDown = true;
-            startX = e.pageX - screenshots.offsetLeft;
-            scrollLeft = screenshots.scrollLeft;
-        });
-        
-        screenshots.addEventListener('mouseleave', () => {
-            isDown = false;
-        });
-        
-        screenshots.addEventListener('mouseup', () => {
-            isDown = false;
-        });
-        
-        screenshots.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - screenshots.offsetLeft;
-            const walk = (x - startX) * 2;
-            screenshots.scrollLeft = scrollLeft - walk;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Sent! 🎉';
+                submitBtn.style.background = 'linear-gradient(135deg, #43A047, #66BB6A)';
+                
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.transform = '';
+                    submitBtn.style.background = '';
+                }, 2000);
+            }, 1500);
         });
     }
     
@@ -191,11 +242,119 @@ document.addEventListener('DOMContentLoaded', function() {
         
         symbols.forEach((symbol, index) => {
             const speed = (index + 1) * 0.5;
-            const x = (mouseX - 0.5) * speed * 30;
-            const y = (mouseY - 0.5) * speed * 30;
-            symbol.style.transform = `translate(${x}px, ${y}px)`;
+            const x = (mouseX - 0.5) * speed * 40;
+            const y = (mouseY - 0.5) * speed * 40;
+            const rotation = (mouseX - 0.5) * 20;
+            symbol.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         });
     });
     
-    console.log('🧮 May Thingyan Portfolio Loaded! Calculate smarter, learn faster! 📐');
+    // =====================================================
+    // Cute Cursor Trail Effect
+    // =====================================================
+    const cursorTrail = [];
+    const trailLength = 8;
+    
+    for (let i = 0; i < trailLength; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-dot';
+        dot.style.cssText = `
+            position: fixed;
+            width: ${12 - i}px;
+            height: ${12 - i}px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: ${0.6 - i * 0.07};
+            transition: transform 0.1s ease;
+            display: none;
+        `;
+        document.body.appendChild(dot);
+        cursorTrail.push({ el: dot, x: 0, y: 0 });
+    }
+    
+    let mouseX = 0, mouseY = 0;
+    let showTrail = false;
+    
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!showTrail) {
+            showTrail = true;
+            cursorTrail.forEach(dot => dot.el.style.display = 'block');
+        }
+    });
+    
+    function animateTrail() {
+        let x = mouseX;
+        let y = mouseY;
+        
+        cursorTrail.forEach((dot, index) => {
+            const nextDot = cursorTrail[index + 1] || cursorTrail[0];
+            
+            dot.x = x;
+            dot.y = y;
+            dot.el.style.left = `${dot.x - 4}px`;
+            dot.el.style.top = `${dot.y - 4}px`;
+            
+            x += (nextDot.x - x) * 0.35;
+            y += (nextDot.y - y) * 0.35;
+        });
+        
+        requestAnimationFrame(animateTrail);
+    }
+    
+    animateTrail();
+    
+    // =====================================================
+    // Add Confetti on Button Click
+    // =====================================================
+    const primaryBtns = document.querySelectorAll('.btn-primary');
+    
+    primaryBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            createConfetti(e.clientX, e.clientY);
+        });
+    });
+    
+    function createConfetti(x, y) {
+        const colors = ['#2E7D32', '#4CAF50', '#FF8F00', '#FFB74D', '#A5D6A7'];
+        const emojis = ['✨', '🎉', '💚', '🌟', '📐'];
+        
+        for (let i = 0; i < 15; i++) {
+            const confetti = document.createElement('div');
+            confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.style.cssText = `
+                position: fixed;
+                left: ${x}px;
+                top: ${y}px;
+                font-size: ${Math.random() * 15 + 10}px;
+                pointer-events: none;
+                z-index: 10000;
+                animation: confetti-fall ${Math.random() * 1 + 1}s ease-out forwards;
+            `;
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 2000);
+        }
+    }
+    
+    // Add confetti animation
+    const confettiStyle = document.createElement('style');
+    confettiStyle.textContent = `
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 + 100}px) rotate(${Math.random() * 360}deg) scale(0);
+            }
+        }
+    `;
+    document.head.appendChild(confettiStyle);
+    
+    console.log('🧮 May Thingyan Portfolio Loaded! Calculate smarter, learn faster! 📐✨');
 });
